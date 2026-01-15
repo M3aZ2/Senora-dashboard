@@ -7,7 +7,7 @@ type FormData={
     status:string
     orders:number
     availableSizes:number[]
-    category:string
+    category:number
 }
 type Category = {
     id: string;

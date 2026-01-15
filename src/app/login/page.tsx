@@ -8,7 +8,6 @@ export default function LoginPage() {
     <div className="min-h-screen w-full flex overflow-hidden bg-gradient-to-br from-background via-accent to-background">
       <LoginVisuals />
       <LoginForm />
-      {/* <h1 className="text-4xl text-center m-auto">Login Page Debug Mode</h1> */}
     </div>
   );
 }

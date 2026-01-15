@@ -64,8 +64,6 @@ export default function Home() {
     <div className="space-y-6 pb-12">
       <WelcomeBanner />
 
-      <StatsGrid stats={stats} />
-
       <FilterSection
         categories={CATEGORIES}
         selectedCategory={selectedCategory}

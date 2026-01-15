@@ -8,7 +8,7 @@ import { api } from "@/lib/api";
 type ProductFormData = {
     name: string;
     price: number;
-    category: string;
+    category: number;
     description: string;
     status: "available" | "unavailable" | string;
     availableSizes: number[];
@@ -27,9 +27,9 @@ function normalizeProductToFormData(raw: any): ProductFormData {
     return {
         name: p?.name ?? "",
         price: Number(p?.price ?? 0),
-        category: p?.category ?? "",
+        category: p?.category_id ?? "",
         description: p?.description ?? "",
-        status: p?.status ?? "available",
+        status: p?.is_active ?? true,
         availableSizes: Array.isArray(p?.sizes)
             ? p.sizes.map((x: any) => Number(x))
             : Array.isArray(p?.sizes)
@@ -67,9 +67,11 @@ export default function EditProductPage() {
             setErrorMsg(null);
 
             try {
+                const token = localStorage.getItem("token");
                 // ✅ حسب مشروعك غالبًا: /products/{ulid}
                 // إذا عندك prefix /api داخل baseURL فخليها بدون /api
-                const res = await api.get(`/products/${productId}`);
+                const res = await api.get(`/products/${productId}`, {
+                    headers: {Authorization: `Bearer ${token}`,},});
                 setInitialData(normalizeProductToFormData(res.data));
             } catch (err: any) {
                 const msg =
