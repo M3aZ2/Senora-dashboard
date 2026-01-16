@@ -1,6 +1,6 @@
-'use client'
-
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { api } from "@/lib/api";
 
 type Props = {
     isEditMode: boolean
@@ -8,10 +8,38 @@ type Props = {
     onSubmit: any
     formData?: any
     setFormData?: any
+    productId?: string | null
 }
 
-export default function Header({ isEditMode, onSubmit, loading, formData, setFormData }: Props) {
+export default function Header({ isEditMode, onSubmit, loading, formData, setFormData, productId }: Props) {
     const router = useRouter();
+    const [statusLoading, setStatusLoading] = useState(false);
+    // Use local state for immediate UI feedback, initialize from formData if available
+    const [localStatus, setLocalStatus] = useState<boolean>(formData?.status ?? true);
+
+    const handleStatusToggle = async () => {
+        if (!productId) return;
+
+        const newStatus = !localStatus;
+        setLocalStatus(newStatus); // Optimistic update
+        setStatusLoading(true);
+
+        try {
+            const token = localStorage.getItem("token",);
+            const response =await api.post(`dashboard/product/${productId}/changeStatus`,{},{
+                headers: { Authorization: `Bearer ${token}`, },
+            });
+            alert(response.data);
+            if (setFormData && formData) {
+                setFormData({ ...formData, status: newStatus });
+            }
+        } catch (error) {
+            setLocalStatus(!newStatus); // Revert on error
+            alert(error?.response?.data?.message ||"حدث خطأ");
+        } finally {
+            setStatusLoading(false);
+        }
+    };
 
     return (
         <div className="flex flex-col gap-4 bg-white rounded-xl p-6 border border-border/50 shadow-sm">
@@ -37,6 +65,42 @@ export default function Header({ isEditMode, onSubmit, loading, formData, setFor
                 </div>
 
                 <div className="flex items-center gap-3">
+                    {/* Status Toggle Switch - Only in Edit Mode */}
+                    {isEditMode && productId && (
+                        <div className="flex items-center gap-3 ml-4 pl-4 border-l border-border/50">
+                            <span className={`text-sm font-medium ${localStatus ? "text-green-600" : "text-muted-foreground"}`}>
+                                {localStatus ? "متوفر للعرض" : "غير متوفر"}
+                            </span>
+                            <button
+                                onClick={handleStatusToggle}
+                                disabled={statusLoading}
+                                className={`relative w-14 h-8 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${localStatus ? "bg-green-500" : "bg-gray-200"
+                                    }`}
+                                aria-label="Toggle Product Status"
+                            >
+                                <span
+                                    className={`absolute top-1 left-1 bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 flex items-center justify-center ${localStatus ? "translate-x-6" : "translate-x-0"
+                                        }`}
+                                >
+                                    {statusLoading ? (
+                                        <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                    ) : (
+                                        localStatus ? (
+                                            <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        )
+                                    )}
+                                </span>
+                            </button>
+                        </div>
+                    )}
+
+
                     <button
                         type="button"
                         onClick={() => router.back()}
@@ -69,65 +133,6 @@ export default function Header({ isEditMode, onSubmit, loading, formData, setFor
                     </button>
                 </div>
             </div>
-
-            {/* Status Toggle Section */}
-            {formData && setFormData && (
-                <div className="pt-4 border-t border-border/30">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                <span className="text-xl">📦</span>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold text-foreground">حالة المنتج</h3>
-                                <p className="text-xs text-muted-foreground">تحديد توفر المنتج للعملاء</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 w-full sm:w-auto">
-                            <button
-                                type="button"
-                                onClick={() => setFormData({ ...formData, status: true })}
-                                className={`flex-1 sm:flex-none px-5 py-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
-                                    formData.status === true
-                                        ? "border-green-500 bg-green-50 shadow-md shadow-green-500/20"
-                                        : "border-border hover:border-green-500/50 bg-white"
-                                }`}
-                            >
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                                    formData.status === true ? "bg-green-500 scale-110" : "bg-accent"
-                                }`}>
-                                    <span className="text-lg">✅</span>
-                                </div>
-                                <div className="text-right">
-                                    <div className="font-bold text-foreground text-sm">متوفر</div>
-                                    <div className="text-xs text-muted-foreground hidden sm:block">متاح للشراء</div>
-                                </div>
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => setFormData({ ...formData, status: false })}
-                                className={`flex-1 sm:flex-none px-5 py-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
-                                    formData.status === false
-                                        ? "border-red-500 bg-red-50 shadow-md shadow-red-500/20"
-                                        : "border-border hover:border-red-500/50 bg-white"
-                                }`}
-                            >
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                                    formData.status === false ? "bg-red-500 scale-110" : "bg-accent"
-                                }`}>
-                                    <span className="text-lg">❌</span>
-                                </div>
-                                <div className="text-right">
-                                    <div className="font-bold text-foreground text-sm">غير متوفر</div>
-                                    <div className="text-xs text-muted-foreground hidden sm:block">غير متاح حالياً</div>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

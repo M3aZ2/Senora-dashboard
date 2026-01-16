@@ -10,11 +10,11 @@ type ProductFormData = {
     price: number;
     category: number;
     description: string;
-    status:boolean;
+    status: boolean;
     availableSizes: number[];
     customSizeAvailable: boolean;
     images: string[];
-    availableColors:string[]
+    availableColors: string[]
     // اختياري إذا عندك حقول إضافية
     ulid?: string;
     order_count?: number;
@@ -66,7 +66,8 @@ export default function EditProductPage() {
             try {
                 const token = localStorage.getItem("token");
                 const res = await api.get(`/products/${productId}`, {
-                    headers: {Authorization: `Bearer ${token}`,},});
+                    headers: { Authorization: `Bearer ${token}`, },
+                });
                 setInitialData(normalizeProductToFormData(res.data));
             } catch (err: any) {
                 setErrorMsg(String("تعذر تحميل بيانات المنتج. تأكد من المعرف."));
@@ -94,7 +95,7 @@ export default function EditProductPage() {
             router.refresh();
         } catch (err: any) {
             const msg =
-                err?.response?.data?.message || (err?.response?.data?.errors ? Object.values(err.response.data.errors).flat()[0]: null) ||
+                err?.response?.data?.message || (err?.response?.data?.errors ? Object.values(err.response.data.errors).flat()[0] : null) ||
                 "فشل حفظ التغييرات.";
             setErrorMsg(String(msg));
         } finally {
@@ -150,6 +151,7 @@ export default function EditProductPage() {
                 onSubmit={handleSubmit}
                 isEditMode={true}
                 loading={saving}
+                productId={productId}
             />
         </div>
     );
