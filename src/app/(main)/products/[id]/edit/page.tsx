@@ -10,7 +10,7 @@ type ProductFormData = {
     price: number;
     category: number;
     description: string;
-    status: "available" | "unavailable" | string;
+    status:boolean;
     availableSizes: number[];
     customSizeAvailable: boolean;
     images: string[];
@@ -23,7 +23,6 @@ type ProductFormData = {
 function normalizeProductToFormData(raw: any): ProductFormData {
     // بعض الـ APIs ترجع { data: {...} } وبعضها ترجع {...}
     const p = raw?.data ?? raw;
-    console.log(p)
     return {
         name: p?.name ?? "",
         price: Number(p?.price ?? 0),
@@ -49,7 +48,6 @@ export default function EditProductPage() {
     const router = useRouter();
     const params = useParams<{ id: string }>();
 
-    // id من الرابط: /products/2/edit
     const productId = useMemo(() => params?.id, [params]);
 
     const [initialData, setInitialData] = useState<ProductFormData | null>(null);
@@ -58,7 +56,6 @@ export default function EditProductPage() {
     const [saving, setSaving] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-    // ✅ جلب بيانات المنتج
     useEffect(() => {
         if (!productId) return;
 
@@ -68,16 +65,11 @@ export default function EditProductPage() {
 
             try {
                 const token = localStorage.getItem("token");
-                // ✅ حسب مشروعك غالبًا: /products/{ulid}
-                // إذا عندك prefix /api داخل baseURL فخليها بدون /api
                 const res = await api.get(`/products/${productId}`, {
                     headers: {Authorization: `Bearer ${token}`,},});
                 setInitialData(normalizeProductToFormData(res.data));
             } catch (err: any) {
-                const msg =
-                    err?.response?.data?.message ||
-                    "تعذر تحميل بيانات المنتج. تأكد من المعرف.";
-                setErrorMsg(String(msg));
+                setErrorMsg(String("تعذر تحميل بيانات المنتج. تأكد من المعرف."));
                 setInitialData(null);
             } finally {
                 setPageLoading(false);
@@ -98,8 +90,8 @@ export default function EditProductPage() {
 
             await api.patch(`/products/${productId}`, data);
             alert("تم حفظ التغييرات بنجاح!");
+            router.push("/");
             router.refresh();
-            // router.push("/products"); // إذا بدك ترجع للقائمة
         } catch (err: any) {
             const msg =
                 err?.response?.data?.message || (err?.response?.data?.errors ? Object.values(err.response.data.errors).flat()[0]: null) ||
@@ -110,7 +102,6 @@ export default function EditProductPage() {
         }
     };
 
-    // ✅ UI حالات التحميل/الخطأ
     if (pageLoading) {
         return (
             <div className="p-6">
@@ -154,7 +145,6 @@ export default function EditProductPage() {
                     <p className="text-sm text-red-700">{errorMsg}</p>
                 </div>
             )}
-
             <ProductForm
                 initialData={initialData!}
                 onSubmit={handleSubmit}

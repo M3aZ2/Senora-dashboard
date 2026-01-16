@@ -21,7 +21,7 @@ export default function ProductForm({ initialData, onSubmit, isEditMode = false,
         { id: "basic", label: "المعلومات الأساسية", icon: "📝" },
         { id: "images", label: "الصور", icon: "🖼️" },
         { id: "sizes", label: "المقاسات", icon: "📏" },
-        { id: "pricing", label: "التسعير والمخزون", icon: "💰" },
+        { id: "pricing", label: "التسعير والطلب ", icon: "💰" },
     ];
     useEffect(() => {
         const fetchCategories = async () => {
@@ -39,7 +39,6 @@ export default function ProductForm({ initialData, onSubmit, isEditMode = false,
         <div className="max-w-7xl mx-auto space-y-6 pb-12">
             {/* Header */}
             <Header isEditMode={isEditMode} onSubmit={onSubmit} loading={loading} />
-
             {/* Tabs */}
             <div className="bg-white rounded-xl p-2 border border-border/50 shadow-sm">
                 <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
