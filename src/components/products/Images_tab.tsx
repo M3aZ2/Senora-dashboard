@@ -1,15 +1,18 @@
 'use client'
 import { useRef } from 'react'
 
+type ImageItem = {
+    id?: string | number;
+    url: string;
+    file?: File;
+    isNew?: boolean;
+};
+
 type FormData = {
-    images: string[]
-    name: string
-    price: number
-    description: string
-    status: string
-    orders: number
-    availableSizes: number[]
-    category: string
+    images: ImageItem[];
+    // ... allow other fields to be loose or keep them as is if needed, 
+    // but best to just focus on images here for the type used in this component
+    [key: string]: any;
 }
 
 type Props = {
@@ -20,16 +23,22 @@ type Props = {
 
 export default function ImagesTab({ formData, activeTab, setFormData }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
-
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files) {
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    setFormData(prev => ({
+                    setFormData((prev: any) => ({
                         ...prev,
-                        images: [...prev.images, reader.result as string]
+                        images: [
+                            ...prev.images,
+                            {
+                                url: reader.result as string,
+                                file: file,
+                                isNew: true
+                            }
+                        ]
                     }));
                 };
                 reader.readAsDataURL(file);
@@ -42,9 +51,9 @@ export default function ImagesTab({ formData, activeTab, setFormData }: Props) {
     };
 
     const removeImage = (index: number) => {
-        setFormData(prev => ({
+        setFormData((prev: any) => ({
             ...prev,
-            images: prev.images.filter((_, i: number) => i !== index)
+            images: prev.images.filter((_: any, i: number) => i !== index)
         }));
     };
 
@@ -84,10 +93,14 @@ export default function ImagesTab({ formData, activeTab, setFormData }: Props) {
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {formData.images.map((image, index) => (
+                        {formData.images?.map((image, index) => (
                             <div key={index} className="relative group">
                                 <div className="aspect-[3/4] rounded-xl overflow-hidden border-2 border-border hover:border-secondary/50 transition-all">
-                                    <img src={image} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
+                                    <img
+                                        src={typeof image === 'string' ? image : image.url}
+                                        alt={`Product ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
 
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center gap-2">

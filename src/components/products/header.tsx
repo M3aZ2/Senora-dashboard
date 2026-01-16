@@ -47,7 +47,7 @@ export default function Header({ isEditMode, onSubmit, loading, formData, setFor
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={() => window.history.back()}
+                        onClick={() => router.push('/')}
                         className="w-11 h-11 flex items-center justify-center rounded-xl bg-accent border border-border/50 hover:bg-primary/10 hover:border-primary/30 transition-all shadow-sm group"
                     >
                         <svg className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,7 +103,7 @@ export default function Header({ isEditMode, onSubmit, loading, formData, setFor
 
                     <button
                         type="button"
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/')}
                         className="px-5 py-2.5 rounded-xl border-2 border-border hover:bg-accent font-medium transition-all text-sm"
                     >
                         إلغاء

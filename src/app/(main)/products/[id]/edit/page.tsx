@@ -5,6 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import ProductForm from "@/components/products/ProductForm";
 import { api } from "@/lib/api";
 
+type ImageItem = {
+    id?: string | number;
+    url: string;
+    file?: File;
+    isNew?: boolean;
+};
+
 type ProductFormData = {
     name: string;
     price: number;
@@ -13,7 +20,7 @@ type ProductFormData = {
     status: boolean;
     availableSizes: number[];
     customSizeAvailable: boolean;
-    images: string[];
+    images: ImageItem[];
     availableColors: string[]
     // اختياري إذا عندك حقول إضافية
     ulid?: string;
@@ -23,6 +30,29 @@ type ProductFormData = {
 function normalizeProductToFormData(raw: any): ProductFormData {
     // بعض الـ APIs ترجع { data: {...} } وبعضها ترجع {...}
     const p = raw?.data ?? raw;
+
+    // Normalizing images to ensure they are objects with ID and URL
+    const normalizedImages = Array.isArray(p?.images)
+        ? p.images.map((img: any) => {
+            let imageUrl = typeof img === 'string' ? img : (img.url || img.image || "");
+
+            // Fix: Backend returns localhost (port 80) but actual server is likely on port 8000
+            // We replace http://localhost/ with the API base domain if needed
+            if (imageUrl && imageUrl.startsWith('http://localhost/storage')) {
+                imageUrl = imageUrl.replace('http://localhost/', 'http://127.0.0.1:8000/');
+            }
+
+            if (typeof img === 'string') {
+                return { url: imageUrl, isNew: false };
+            }
+            return {
+                id: img.id,
+                url: imageUrl,
+                isNew: false
+            };
+        })
+        : [];
+
     return {
         name: p?.name ?? "",
         price: Number(p?.price ?? 0),
@@ -37,7 +67,7 @@ function normalizeProductToFormData(raw: any): ProductFormData {
         customSizeAvailable: Boolean(
             p?.custom_tailoring
         ),
-        images: Array.isArray(p?.images) ? p.images : [],
+        images: normalizedImages,
         availableColors: Array.isArray(p?.colors) ? p.colors : [],
         ulid: p?.ulid,
         order_count: p?.orders_count,
@@ -88,12 +118,41 @@ export default function EditProductPage() {
         setErrorMsg(null);
 
         try {
+            const formData = new FormData();
 
-            await api.patch(`/products/${productId}`, data);
+            // Basic fields
+            formData.append("name", data.name);
+            formData.append("price", String(data.price));
+            formData.append("category_id", 2);
+            formData.append("description", data.description);
+            // Status is handled separately now
+            formData.append("custom_tailoring", data.customSizeAvailable ? "1" : "0");
+
+            // Arrays
+            data.availableSizes.forEach(size => formData.append("sizes[]", String(size)));
+            data.availableColors.forEach(color => formData.append("colors[]", color));
+
+            // Images Logic
+            data.images.forEach((img, index) => {
+                if (img.isNew && img.file) {
+                    formData.append(`media[${index}]`, img.file);
+                } else if (img.id && !img.isNew) {
+                    formData.append("wanted_media[]", String(img.id));
+                }
+            });
+
+            const token = localStorage.getItem("token",);
+
+            await api.post(`dashboard/product/${productId}/update`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                }
+            });
             alert("تم حفظ التغييرات بنجاح!");
-            router.push("/");
             router.refresh();
         } catch (err: any) {
+            console.error(err);
             const msg =
                 err?.response?.data?.message || (err?.response?.data?.errors ? Object.values(err.response.data.errors).flat()[0] : null) ||
                 "فشل حفظ التغييرات.";

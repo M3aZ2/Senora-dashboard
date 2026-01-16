@@ -12,7 +12,15 @@ import { api } from "@/lib/api"
 // Available sizes (38 to 50, increment by 2)
 
 
-export default function ProductForm({ initialData, onSubmit, isEditMode = false, loading, productId = null }) {
+type Props = {
+  initialData: any;
+  onSubmit: any;
+  isEditMode?: boolean;
+  loading: boolean;
+  productId?: string | null;
+};
+
+export default function ProductForm({ initialData, onSubmit, isEditMode = false, loading, productId = null }: Props) {
   const [activeTab, setActiveTab] = useState("basic");
   const [formData, setFormData] = useState(initialData);
   const [categories, setCategories] = useState<{ id: string; name: string, image: string }[]>([]);
@@ -38,7 +46,14 @@ export default function ProductForm({ initialData, onSubmit, isEditMode = false,
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
       {/* Header */}
-      <Header isEditMode={isEditMode} onSubmit={onSubmit} loading={loading} productId={productId} formData={initialData} setFormData={setFormData} />
+      <Header
+        isEditMode={isEditMode}
+        onSubmit={() => onSubmit(formData)}
+        loading={loading}
+        productId={productId}
+        formData={formData}
+        setFormData={setFormData}
+      />
       {/* Tabs */}
       <div className="bg-white rounded-xl p-2 border border-border/50 shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
