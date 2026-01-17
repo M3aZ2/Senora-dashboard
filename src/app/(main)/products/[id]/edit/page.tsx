@@ -123,7 +123,7 @@ export default function EditProductPage() {
             // Basic fields
             formData.append("name", data.name);
             formData.append("price", String(data.price));
-            [1,2,3].forEach(id => formData.append("categories[]", String(id)));
+            [1, 2, 3].forEach(id => formData.append("categories[]", String(id)));
             formData.append("description", data.description);
             // Status is handled separately now
             formData.append("custom_tailoring", data.customSizeAvailable ? "1" : "0");

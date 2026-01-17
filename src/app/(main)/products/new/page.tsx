@@ -48,7 +48,7 @@ export default function NewProductPage() {
             const formData = new FormData();
             formData.append("name", data.name);
             formData.append("price", String(data.price));
-            formData.append("category_id", String(data.category));
+            [1, 2, 3].forEach(id => formData.append("categories[]", String(id)));
             formData.append("description", data.description);
             formData.append("custom_tailoring", data.customSizeAvailable ? "1" : "0");
 

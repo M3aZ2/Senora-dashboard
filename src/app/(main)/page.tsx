@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import WelcomeBanner from "@/components/home/WelcomeBanner";
 import StatsGrid from "@/components/home/StatsGrid";
 import FilterSection from "@/components/home/FilterSection";
 import ProductGrid from "@/components/home/ProductGrid";
 import DeleteModal from "@/components/home/DeleteModal";
+import { api } from "@/lib/api";
 
 // Optimized Product Data
 const INITIAL_PRODUCTS = [
@@ -23,21 +24,39 @@ const INITIAL_PRODUCTS = [
   { id: 12, name: "بلوزة مطرزة فاخرة", price: 520, category: "blouses", status: "مبيعات عالية", stock: 9, sales: 73, image: "https://images.unsplash.com/photo-1624206112918-f140f087f9b5?q=80&w=400&h=500&fit=crop" },
 ];
 
-const CATEGORIES = [
-  { id: 'all', label: 'الكل', icon: '📦' },
-  { id: 'dresses', label: 'فساتين', icon: '👗' },
-  { id: 'pants', label: 'بناطيل', icon: '👖' },
-  { id: 'blouses', label: 'كنزات', icon: '👚' },
-  { id: 'suits', label: 'أطقم', icon: '🎽' },
-  { id: 'other', label: 'غير ذلك', icon: '🔹' },
-];
-
 export default function Home() {
+
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [categories, setCategories] = useState([]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await api.get("/categories", {
+          headers: { Authorization: `Bearer ${token}`, },
+        });
+        // Normalize categories to match what components expect (label, icon)
+        // Assuming API returns { id, name, image }
+        const mappedCategories = response.data.data.map((cat: any) => ({
+          id: cat.id,
+          label: cat.name,
+          icon: "🏷️", // Default icon or map from cat.image if suitable
+          // If you want to use the image as icon, you might need to adjust FilterSection to render unknown
+        }));
+        // Add "All" category
+        setCategories([{ id: "all", label: "الكل", icon: "🌟" }, ...mappedCategories]);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+        // Fallback or empty
+        setCategories([{ id: "all", label: "الكل", icon: "🌟" }]);
+      }
+    };
+    fetchCategories();
+  }, []);
   const handleDelete = (id) => {
     setProducts(products.filter(p => p.id !== id));
     setShowDeleteModal(null);
@@ -65,7 +84,7 @@ export default function Home() {
       <WelcomeBanner />
 
       <FilterSection
-        categories={CATEGORIES}
+        categories={categories}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         searchTerm={searchTerm}
@@ -75,7 +94,7 @@ export default function Home() {
 
       <ProductGrid
         products={filteredProducts}
-        categories={CATEGORIES}
+        categories={categories}
         setShowDeleteModal={setShowDeleteModal}
       />
 
