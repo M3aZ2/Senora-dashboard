@@ -15,7 +15,7 @@ export default function Price_Avaliabilty({ activeTab, formData, setFormData }: 
                         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                             <span className="text-xl">💰</span>
                         </div>
-                        <h3 className="text-lg font-bold text-foreground">التسعيروالطلب</h3>
+                        <h3 className="text-lg font-bold text-foreground">التسعير و الطلب</h3>
                     </div>
 
                     <div className="space-y-5">

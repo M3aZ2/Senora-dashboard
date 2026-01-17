@@ -34,7 +34,10 @@ export default function ProductForm({ initialData, onSubmit, isEditMode = false,
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/categories");
+          const token = localStorage.getItem("token");
+          const response = await api.get("/categories",{
+              headers: { Authorization: `Bearer ${token}`, },
+        });
         setCategories(response.data.data);
       } catch (error) {
         console.error("Failed to fetch categories", error);

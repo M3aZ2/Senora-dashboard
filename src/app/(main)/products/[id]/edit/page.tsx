@@ -15,7 +15,7 @@ type ImageItem = {
 type ProductFormData = {
     name: string;
     price: number;
-    category: number;
+    categories: number[];
     description: string;
     status: boolean;
     availableSizes: number[];
@@ -123,7 +123,7 @@ export default function EditProductPage() {
             // Basic fields
             formData.append("name", data.name);
             formData.append("price", String(data.price));
-            formData.append("category_id", 2);
+            [1,2,3].forEach(id => formData.append("categories[]", String(id)));
             formData.append("description", data.description);
             // Status is handled separately now
             formData.append("custom_tailoring", data.customSizeAvailable ? "1" : "0");
