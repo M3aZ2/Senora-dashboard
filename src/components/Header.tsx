@@ -2,8 +2,11 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
+import ResetPasswordModal from "./ResetPasswordModal";
+
 export default function Header() {
     const [showProfile, setShowProfile] = useState(false);
+    const [showResetPassword, setShowResetPassword] = useState(false);
     const [currentTime, setCurrentTime] = useState("");
     const [currentDate, setCurrentDate] = useState("");
     const router = useRouter();
@@ -144,6 +147,21 @@ export default function Header() {
                                     </button>
 
                                     <button
+                                        onClick={() => {
+                                            setShowProfile(false);
+                                            setShowResetPassword(true);
+                                        }}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent/50 transition-all text-right group mb-1"
+                                    >
+                                        <span className="w-5 h-5 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
+                                            🔐
+                                        </span>
+                                        <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                            إعادة تعيين كلمة المرور
+                                        </span>
+                                    </button>
+
+                                    <button
                                         onClick={handleLogout}
                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-all text-right group"
                                     >
@@ -172,12 +190,20 @@ export default function Header() {
             </header>
 
             {/* Overlay when dropdown is open */}
-            {showProfile && (
-                <div
-                    className="fixed inset-0 z-20 bg-black/10 backdrop-blur-sm animate-fade-in"
-                    onClick={() => setShowProfile(false)}
-                ></div>
-            )}
+            {
+                showProfile  && (
+                    <div
+                        className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm animate-fade-in"
+                        onClick={() => setShowProfile(false)}
+                    ></div>
+                )
+            }
+
+            {/* Reset Password Modal */}
+            <ResetPasswordModal
+                isOpen={showResetPassword}
+                onClose={() => setShowResetPassword(false)}
+            />
 
             <style jsx>{`
                 @keyframes fade-in {

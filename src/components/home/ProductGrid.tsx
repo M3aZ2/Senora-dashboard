@@ -25,7 +25,7 @@ export default function ProductGrid({ products, categories }) {
             const interval = setInterval(() => {
                 index = (index + 1) % images.length;
                 setCurrentImageIndex(prev => ({ ...prev, [productId]: index }));
-            }, 1500); // Change image every 800ms
+            }, 1500); // Change image every 1500ms
 
             // Store interval ID to clear later
             setCurrentImageIndex(prev => ({ ...prev, [`${productId}_interval`]: interval }));
@@ -47,19 +47,19 @@ export default function ProductGrid({ products, categories }) {
             return newState;
         });
     };
-    console.log(products);
+
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => {
                 // Assume product has an images array, fallback to single image
                 const images = product.images || [product.image];
                 const currentIndex = currentImageIndex[product.id] || 0;
-                const displayImage = images[currentIndex] || product.image;
 
                 return (
-                    <div
+                    <Link
+                        href={`/products/${product.id}/edit`}
                         key={product.id}
-                        className="group relative bg-white rounded-2xl overflow-hidden border border-border/30 hover:border-[#0f5943]/30 hover:shadow-2xl hover:shadow-[#0f5943]/10 transition-all duration-500 hover:-translate-y-2"
+                        className="group relative bg-white rounded-2xl overflow-hidden border border-border/30 hover:border-[#0f5943]/30 hover:shadow-2xl hover:shadow-[#0f5943]/10 transition-all duration-500 hover:-translate-y-2 block cursor-pointer"
                         onMouseEnter={() => handleMouseEnter(product.id, images)}
                         onMouseLeave={() => handleMouseLeave(product.id)}
                     >
@@ -118,17 +118,14 @@ export default function ProductGrid({ products, categories }) {
                                 </div>
                             )}
 
-                            {/* Edit Button - Appears on Hover */}
+                            {/* Edit Icon - Appears on Hover */}
                             <div className="absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                <Link
-                                    href={`/products/${product.id}/edit`}
-                                    className="flex items-center gap-2 bg-white/95 backdrop-blur-sm text-[#0f5943] hover:bg-[#0f5943] hover:text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xl hover:shadow-2xl hover:scale-105"
-                                >
+                                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm text-[#0f5943] px-4 py-2.5 rounded-xl font-medium text-sm shadow-xl">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                     تعديل
-                                </Link>
+                                </div>
                             </div>
                         </div>
 
@@ -194,7 +191,7 @@ export default function ProductGrid({ products, categories }) {
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                         </div>
-                    </div>
+                    </Link>
                 );
             })}
 

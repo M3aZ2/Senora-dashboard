@@ -56,7 +56,6 @@ export default function Home() {
           if (status === 401) {
               localStorage.removeItem("token");
               router.replace("/login");
-              return;
           }
           console.error("Failed to fetch categories", error);
         setCategories([{ id: "all", label: "الكل", icon: "🌟" }]);
