@@ -15,7 +15,7 @@ type ImageItem = {
 type ProductFormData = {
     name: string;
     price: number;
-    category: number;
+    categories: number[];
     description: string;
     status: boolean;
     availableSizes: number[];
@@ -28,7 +28,7 @@ type ProductFormData = {
 const INITIAL_DATA: ProductFormData = {
     name: "",
     price: 0,
-    category: 2, // Default category ID, adjust as needed
+    categories: [], // Changed from category: 2
     description: "",
     status: true,
     availableSizes: [],
@@ -43,21 +43,19 @@ export default function NewProductPage() {
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (data: ProductFormData) => {
+        if (!data.categories || data.categories.length === 0) {
+            alert("يرجى اختيار تصنيف واحد على الأقل");
+            return;
+        }
+
         setLoading(true);
         try {
             const formData = new FormData();
             formData.append("name", data.name);
             formData.append("price", String(data.price));
-            [1, 2, 3].forEach(id => formData.append("categories[]", String(id)));
+            data.categories.forEach(id => formData.append("categories[]", String(id)));
             formData.append("description", data.description);
             formData.append("custom_tailoring", data.customSizeAvailable ? "1" : "0");
-
-            // New products are usually created as active/available by default, 
-            // but if the API expects status/is_active:
-            // The user removed is_active from update, but might need it here?
-            // "The user wants to implement the 'Create New Product' functionality ... linking it to the API endpoint shown in the provided Postman screenshot."
-            // Postman screenshot does NOT show 'is_active' or 'status'. 
-            // I will omit it unless required.
 
             // Arrays
             if (data.availableSizes && data.availableSizes.length > 0) {
@@ -90,6 +88,12 @@ export default function NewProductPage() {
             router.push("/");
             router.refresh();
         } catch (err: any) {
+            const status = err.response?.status;
+            if (status === 401) {
+                localStorage.removeItem("token");
+                router.replace("/login");
+                return;
+            }
             console.error("Failed to create product", err);
             const msg =
                 err?.response?.data?.message ||

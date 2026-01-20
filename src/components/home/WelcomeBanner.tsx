@@ -56,8 +56,8 @@ export default function WelcomeBanner() {
                         <div className="mb-8 group-hover:scale-110 transition-transform duration-500">
                             <div className="relative">
                                 <div className="absolute inset-0 bg-secondary/30 blur-2xl rounded-full"></div>
-                                <div className="relative w-24 h-24 bg-gradient-to-br from-secondary via-secondary-light to-secondary rounded-2xl rotate-3 flex items-center justify-center shadow-2xl border-2 border-secondary-light/30">
-                                    <span className="text-primary font-bold text-5xl">س</span>
+                                <div className="relative w-24 h-24 bg-gradient-to-br from-secondary via-secondary-light to-secondary rounded-2xl rotate-3 flex items-center justify-center shadow-2xl border-2 border-secondary-light/30 overflow-hidden">
+                                    <img src="/favicon.ico" alt="Logo" className="w-full h-full object-cover" />
                                 </div>
                             </div>
                         </div>

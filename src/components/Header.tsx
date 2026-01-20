@@ -1,17 +1,21 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function Header() {
     const [showProfile, setShowProfile] = useState(false);
     const [currentTime, setCurrentTime] = useState("");
     const [currentDate, setCurrentDate] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         setCurrentTime(new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }));
         setCurrentDate(new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
     }, []);
-
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        router.push("/login");
+    };
     return (
         <>
             <header className="relative bg-white/90 backdrop-blur-xl border-b border-border/30 h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 shadow-sm">
@@ -21,8 +25,8 @@ export default function Header() {
                 {/* Left Side - Title */}
                 <div className="flex items-center gap-4 animate-fade-in">
                     {/* Logo for mobile */}
-                    <div className="lg:hidden w-12 h-12 bg-gradient-to-br from-secondary via-secondary-light to-secondary rounded-xl rotate-3 flex items-center justify-center shadow-lg">
-                        <span className="text-primary font-bold text-2xl">س</span>
+                    <div className="lg:hidden w-12 h-12 bg-gradient-to-br from-secondary via-secondary-light to-secondary rounded-xl rotate-3 flex items-center justify-center shadow-lg overflow-hidden">
+                        <img src="/favicon.ico" alt="Logo" className="w-full h-full object-cover" />
                     </div>
 
                     <div>
@@ -109,11 +113,56 @@ export default function Header() {
 
                                 {/* Menu Items */}
                                 <div className="p-2">
-                                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-all text-right group">
-                                        <svg className="w-5 h-5 text-muted-foreground group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    <button
+                                        onClick={() => {
+                                            setShowProfile(false);
+                                            router.push("/");
+                                        }}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent/50 transition-all text-right group mb-1"
+                                    >
+                                        <span className="w-5 h-5 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
+                                            🏠
+                                        </span>
+                                        <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                            الرئيسية
+                                        </span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            setShowProfile(false);
+                                            router.push("/categories");
+                                        }}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent/50 transition-all text-right group mb-1"
+                                    >
+                                        <span className="w-5 h-5 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
+                                            📂
+                                        </span>
+                                        <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                            إدارة التصنيفات
+                                        </span>
+                                    </button>
+
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-all text-right group"
+                                    >
+                                        <svg
+                                            className="w-5 h-5 text-muted-foreground group-hover:text-red-500 transition-colors"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                            />
                                         </svg>
-                                        <span className="text-sm font-medium text-foreground group-hover:text-red-500 transition-colors">تسجيل الخروج</span>
+                                        <span className="text-sm font-medium text-foreground group-hover:text-red-500 transition-colors">
+                                            تسجيل الخروج
+                                        </span>
                                     </button>
                                 </div>
                             </div>

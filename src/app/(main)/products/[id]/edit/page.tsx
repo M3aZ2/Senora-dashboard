@@ -22,15 +22,12 @@ type ProductFormData = {
     customSizeAvailable: boolean;
     images: ImageItem[];
     availableColors: string[]
-    // اختياري إذا عندك حقول إضافية
     ulid?: string;
     order_count?: number;
 };
 
 function normalizeProductToFormData(raw: any): ProductFormData {
-    // بعض الـ APIs ترجع { data: {...} } وبعضها ترجع {...}
     const p = raw?.data ?? raw;
-
     // Normalizing images to ensure they are objects with ID and URL
     const normalizedImages = Array.isArray(p?.images)
         ? p.images.map((img: any) => {
@@ -56,7 +53,9 @@ function normalizeProductToFormData(raw: any): ProductFormData {
     return {
         name: p?.name ?? "",
         price: Number(p?.price ?? 0),
-        category: p?.category_id ?? "",
+        categories: Array.isArray(p?.categories)
+            ? p.categories.map((c: any) => (typeof c === 'object' ? c.id : c))
+            : (p?.category_id ? [p.category_id] : []),
         description: p?.description ?? "",
         status: p?.is_active ?? true,
         availableSizes: Array.isArray(p?.sizes)
@@ -100,6 +99,13 @@ export default function EditProductPage() {
                 });
                 setInitialData(normalizeProductToFormData(res.data));
             } catch (err: any) {
+                const status = err.response?.status;
+                if (status === 401) {
+                    localStorage.removeItem("token");
+                    setErrorMsg("انتهت الجلسة، يرجى تسجيل الدخول.");
+                    router.replace("/login");
+                    return;
+                }
                 setErrorMsg(String("تعذر تحميل بيانات المنتج. تأكد من المعرف."));
                 setInitialData(null);
             } finally {
@@ -123,7 +129,7 @@ export default function EditProductPage() {
             // Basic fields
             formData.append("name", data.name);
             formData.append("price", String(data.price));
-            [1, 2, 3].forEach(id => formData.append("categories[]", String(id)));
+            data.categories.forEach(id => formData.append("categories[]", String(id)));
             formData.append("description", data.description);
             // Status is handled separately now
             formData.append("custom_tailoring", data.customSizeAvailable ? "1" : "0");
@@ -141,7 +147,7 @@ export default function EditProductPage() {
                 }
             });
 
-            const token = localStorage.getItem("token",);
+            const token = localStorage.getItem("token");
 
             await api.post(`dashboard/product/${productId}/update`, formData, {
                 headers: {
@@ -152,7 +158,13 @@ export default function EditProductPage() {
             alert("تم حفظ التغييرات بنجاح!");
             router.refresh();
         } catch (err: any) {
-            console.error(err);
+            const status = err.response?.status;
+            if (status === 401) {
+                localStorage.removeItem("token");
+                setErrorMsg("انتهت الجلسة، يرجى تسجيل الدخول.");
+                router.replace("/login");
+                return;
+            }
             const msg =
                 err?.response?.data?.message || (err?.response?.data?.errors ? Object.values(err.response.data.errors).flat()[0] : null) ||
                 "فشل حفظ التغييرات.";
@@ -205,13 +217,15 @@ export default function EditProductPage() {
                     <p className="text-sm text-red-700">{errorMsg}</p>
                 </div>
             )}
-            <ProductForm
-                initialData={initialData!}
-                onSubmit={handleSubmit}
-                isEditMode={true}
-                loading={saving}
-                productId={productId}
-            />
+            {initialData && (
+                <ProductForm
+                    initialData={initialData}
+                    onSubmit={handleSubmit}
+                    isEditMode={true}
+                    loading={saving}
+                    productId={productId}
+                />
+            )}
         </div>
     );
 }

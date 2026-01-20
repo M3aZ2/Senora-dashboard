@@ -1,36 +1,42 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import WelcomeBanner from "@/components/home/WelcomeBanner";
-import StatsGrid from "@/components/home/StatsGrid";
 import FilterSection from "@/components/home/FilterSection";
 import ProductGrid from "@/components/home/ProductGrid";
-import DeleteModal from "@/components/home/DeleteModal";
 import { api } from "@/lib/api";
-
-// Optimized Product Data
-const INITIAL_PRODUCTS = [
-  { id: 1, name: "فستان سهرة ملكي", price: 1200, category: "dresses", status: "متاح", stock: 12, sales: 45, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=400&h=500&fit=crop" },
-  { id: 2, name: "فستان خطوبة ذهبي", price: 2500, category: "dresses", status: "مبيعات عالية", stock: 5, sales: 89, image: "https://images.unsplash.com/photo-1612833603922-5e6d4e41dad7?q=80&w=400&h=500&fit=crop" },
-  { id: 3, name: "بنطال قماش أسود", price: 350, category: "pants", status: "متاح", stock: 25, sales: 32, image: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?q=80&w=400&h=500&fit=crop" },
-  { id: 4, name: "بلوزة حريرية بيضاء", price: 450, category: "blouses", status: "متاح", stock: 18, sales: 28, image: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?q=80&w=400&h=500&fit=crop" },
-  { id: 5, name: "فستان سهرة أحمر", price: 1100, category: "dresses", status: "متاح", stock: 8, sales: 56, image: "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80&w=400&h=500&fit=crop" },
-  { id: 6, name: "طقم رسمي نسائي", price: 1500, category: "suits", status: "متاح", stock: 10, sales: 41, image: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=400&h=500&fit=crop" },
-  { id: 7, name: "بنطال جينز عصري", price: 250, category: "pants", status: "متاح", stock: 30, sales: 67, image: "https://images.unsplash.com/photo-1475178626620-a4d074967452?q=80&w=400&h=500&fit=crop" },
-  { id: 8, name: "كنزة صوفية كاكي", price: 300, category: "blouses", status: "نفد من المخزون", stock: 0, sales: 94, image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=400&h=500&fit=crop" },
-  { id: 9, name: "فستان كاجوال أنيق", price: 650, category: "dresses", status: "متاح", stock: 15, sales: 38, image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=400&h=500&fit=crop" },
-  { id: 10, name: "جاكيت جلد فاخر", price: 1800, category: "suits", status: "متاح", stock: 7, sales: 22, image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=400&h=500&fit=crop" },
-  { id: 11, name: "تنورة كلاسيكية", price: 380, category: "pants", status: "متاح", stock: 20, sales: 51, image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=400&h=500&fit=crop" },
-  { id: 12, name: "بلوزة مطرزة فاخرة", price: 520, category: "blouses", status: "مبيعات عالية", stock: 9, sales: 73, image: "https://images.unsplash.com/photo-1624206112918-f140f087f9b5?q=80&w=400&h=500&fit=crop" },
-];
+import { useRouter } from "next/navigation";
+const normalizeImageUrl = (url: string | null) => {
+  if (!url) return "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=400&h=500&fit=crop"; // Fallback image
+  if (url.includes('localhost/storage')) {
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+    try {
+      // Basic replacement: replace http://localhost/ with http://127.0.0.1:8000/
+      // This assumes the standard setup.
+      return url.replace('http://localhost/', 'http://127.0.0.1:8000/');
+    } catch (e) {
+      return url;
+    }
+  }
+  return url;
+};
 
 export default function Home() {
 
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [categories, setCategories] = useState([]);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const router = useRouter();
+  // reset page on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -39,45 +45,93 @@ export default function Home() {
         const response = await api.get("/categories", {
           headers: { Authorization: `Bearer ${token}`, },
         });
-        // Normalize categories to match what components expect (label, icon)
-        // Assuming API returns { id, name, image }
         const mappedCategories = response.data.data.map((cat: any) => ({
           id: cat.id,
           label: cat.name,
-          icon: "🏷️", // Default icon or map from cat.image if suitable
-          // If you want to use the image as icon, you might need to adjust FilterSection to render unknown
+          icon: "🏷️",
         }));
-        // Add "All" category
         setCategories([{ id: "all", label: "الكل", icon: "🌟" }, ...mappedCategories]);
       } catch (error) {
-        console.error("Failed to fetch categories", error);
-        // Fallback or empty
+          const status = error?.response?.status;
+          if (status === 401) {
+              localStorage.removeItem("token");
+              router.replace("/login");
+              return;
+          }
+          console.error("Failed to fetch categories", error);
         setCategories([{ id: "all", label: "الكل", icon: "🌟" }]);
       }
     };
     fetchCategories();
   }, []);
-  const handleDelete = (id) => {
-    setProducts(products.filter(p => p.id !== id));
-    setShowDeleteModal(null);
+
+  // Search Function
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        const formData = new FormData();
+
+        if (searchTerm) {
+          formData.append('search', searchTerm);
+        }
+        if (selectedCategory !== 'all') {
+          formData.append('category', selectedCategory);
+        }
+
+        // Add pagination param
+        const response = await api.post(`/search?page=${currentPage}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const rawProducts = response.data?.products?.data || [];
+        const meta = response.data?.products?.meta;
+
+        if (meta) {
+          setTotalPages(meta.last_page);
+        }
+
+        const mappedProducts = rawProducts.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          category: p.categories?.[0]?.id || "",
+          status: p.is_active ? "متاح" : "غير متاح",
+          stock: 10,
+          sales: p.orders_count || 0,
+          colors: p.colors || [],
+          sizes: p.sizes || [],
+          image: normalizeImageUrl(p.images?.[0]?.url || null),
+          images: p.images?.map((img: any) => normalizeImageUrl(img.url)) || []
+        }));
+
+        setProducts(mappedProducts);
+
+      } catch (error) {
+        console.error("Failed to fetch products", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Debounce search
+    const timeoutId = setTimeout(() => {
+      fetchProducts();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, selectedCategory, currentPage]);
+
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 450, behavior: 'smooth' });
+    }
   };
 
-  // Memoized filtered products for performance
-  const filteredProducts = useMemo(() => {
-    return products.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [products, searchTerm, selectedCategory]);
-
-  // Quick Stats
-  const stats = useMemo(() => ({
-    totalProducts: products.length,
-    activeProducts: products.filter(p => p.status === "متاح").length,
-    outOfStock: products.filter(p => p.status === "نفد من المخزون").length,
-    totalSales: products.reduce((sum, p) => sum + p.sales, 0)
-  }), [products]);
+  const displayProducts = products;
 
   return (
     <div className="space-y-6 pb-12">
@@ -89,20 +143,76 @@ export default function Home() {
         setSelectedCategory={setSelectedCategory}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        products={products}
       />
 
-      <ProductGrid
-        products={filteredProducts}
-        categories={categories}
-        setShowDeleteModal={setShowDeleteModal}
-      />
+      {loading ? (
+        <div className="text-center py-20">
+          <p className="text-muted-foreground">جاري البحث...</p>
+        </div>
+      ) : (
+        <>
+          <ProductGrid
+            products={displayProducts}
+            categories={categories}
+          />
 
-      <DeleteModal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(null)}
-        onConfirm={handleDelete}
-      />
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-3 mt-12 dir-ltr">
+              {/* First Page */}
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="w-10 h-10 flex items-center justify-center rounded-xl border border-border bg-white text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
+                title="الصفحة الأولى"
+              >
+                <span className="text-lg">«</span>
+              </button>
+
+              {/* Previous Page */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="w-10 h-10 flex items-center justify-center rounded-xl border border-border bg-white text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
+                title="الصفحة السابقة"
+              >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+              </button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-border/50 shadow-sm mx-2">
+                <span className="text-sm font-medium text-muted-foreground">صفحة</span>
+                <span className="text-lg font-bold text-primary min-w-[1.5rem] text-center">{currentPage}</span>
+                <span className="text-sm font-medium text-muted-foreground">من</span>
+                <span className="text-lg font-bold text-foreground min-w-[1.5rem] text-center">{totalPages}</span>
+              </div>
+
+              {/* Next Page */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="w-10 h-10 flex items-center justify-center rounded-xl border border-border bg-white text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
+              >
+                  <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+              </button>
+
+              {/* Last Page */}
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="w-10 h-10 flex items-center justify-center rounded-xl border border-border bg-white text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
+                title="الصفحة الأخيرة"
+              >
+                <span className="text-lg">»</span>
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

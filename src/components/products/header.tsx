@@ -51,7 +51,7 @@ export default function Header({ isEditMode, onSubmit, loading, formData, setFor
                         className="w-11 h-11 flex items-center justify-center rounded-xl bg-accent border border-border/50 hover:bg-primary/10 hover:border-primary/30 transition-all shadow-sm group"
                     >
                         <svg className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </button>
                     <div>
