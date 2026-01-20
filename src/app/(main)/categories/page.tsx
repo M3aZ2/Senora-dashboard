@@ -76,7 +76,11 @@ export default function CategoriesPage() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {categories.map((cat: any) => (
-                        <div key={cat.id} className="group bg-white rounded-2xl overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+                        <Link
+                            key={cat.id}
+                            href={`/categories/${cat.id}/edit`}
+                            className="group bg-white rounded-2xl overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+                        >
                             {/* Image Area */}
                             <div className="relative h-48 bg-accent/30 overflow-hidden">
                                 {cat.image ? (
@@ -95,15 +99,11 @@ export default function CategoriesPage() {
                                 )}
 
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                                    <Link
-                                        href={`/categories/${cat.id}/edit`}
-                                        className="bg-white/90 backdrop-blur text-primary p-2 rounded-lg hover:bg-primary hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300"
-                                    >
+                                    <div className="bg-white/90 backdrop-blur text-primary p-2 rounded-lg group-hover:bg-primary group-hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
-                                    </Link>
-                                    {/* Additional actions like Delete could go here */}
+                                    </div>
                                 </div>
                             </div>
 
@@ -112,9 +112,8 @@ export default function CategoriesPage() {
                                 <h3 className="font-bold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
                                     {cat.name}
                                 </h3>
-                                {/* Could show product count if available in API response */}
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             )}
