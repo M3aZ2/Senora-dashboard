@@ -1,31 +1,31 @@
 'use client'
 import { useState } from 'react'
 
-type FormData={
-    images:string[]
-    name:string
-    price:number
-    description:string
-    status:string
-    orders:number
-    availableSizes:number[]
-    availableColors:string[]
-    customSizeAvailable:boolean
-    category:string
+type FormData = {
+    images: string[]
+    name: string
+    price: number
+    description: string
+    status: string
+    orders: number
+    availableSizes: number[]
+    availableColors: string[]
+    customSizeAvailable: boolean
+    category: string
 }
 
-type Props={
-    activeTab:string
-    formData:FormData
-    setFormData:any
+type Props = {
+    activeTab: string
+    formData: FormData
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>
 }
 
 const AVAILABLE_SIZES = Array.from({ length: 11 }, (_, i) => 30 + i * 2);
 
-export default function Meassure({activeTab,formData,setFormData}:Props) {
+export default function Meassure({ activeTab, formData, setFormData }: Props) {
     const [colorInput, setColorInput] = useState('');
 
-    const toggleSize = (size:number) => {
+    const toggleSize = (size: number) => {
         setFormData(prev => ({
             ...prev,
             availableSizes: prev.availableSizes.includes(size)
@@ -147,7 +147,7 @@ export default function Meassure({activeTab,formData,setFormData}:Props) {
                                     className={`aspect-square rounded-xl border-2 font-bold transition-all hover:scale-105 ${formData.availableSizes.includes(size)
                                         ? "border-secondary bg-secondary text-white shadow-md"
                                         : "border-border hover:border-secondary/50 text-foreground hover:bg-accent/30"
-                                    }`}
+                                        }`}
                                 >
                                     {size}
                                 </button>
@@ -164,7 +164,7 @@ export default function Meassure({activeTab,formData,setFormData}:Props) {
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${formData.customSizeAvailable ? "bg-secondary/10" : "bg-accent"
-                                }`}>
+                                    }`}>
                                     <span className="text-2xl">✂️</span>
                                 </div>
                                 <div className="text-right">
@@ -173,9 +173,9 @@ export default function Meassure({activeTab,formData,setFormData}:Props) {
                                 </div>
                             </div>
                             <div className={`w-14 h-8 rounded-full transition-all relative ${formData.customSizeAvailable ? "bg-secondary" : "bg-border"
-                            }`}>
+                                }`}>
                                 <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all ${formData.customSizeAvailable ? "right-1" : "right-7"
-                                }`}></div>
+                                    }`}></div>
                             </div>
                         </button>
                     </div>

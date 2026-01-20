@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
 interface Settings {
@@ -48,11 +48,13 @@ export default function SettingsPage() {
                 wholesale_at: response.data.wholesale_at || 0,
             });
 
-        } catch (err) {
-            const status = err?.response?.status;
+        } catch (err: unknown) {
+            const axiosError = err as { response?: { status?: number } };
+            const status = axiosError?.response?.status;
             if (status === 401) {
                 localStorage.removeItem("token");
-                router.replace("/login");}
+                router.replace("/login");
+            }
             setError("فشل في تحميل الإعدادات");
             console.error(err);
         } finally {
@@ -68,17 +70,18 @@ export default function SettingsPage() {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await api.post("dashboard/settings/update",formData, {
+            const response = await api.post("dashboard/settings/update", formData, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-                setSuccess(true);
-                setTimeout(() => setSuccess(false), 3000);
-        } catch (err) {
-            setError(err.response.data.message);
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 3000);
+        } catch (err: unknown) {
+            const axiosError = err as { response?: { data?: { message?: string } } };
+            setError(axiosError?.response?.data?.message || "حدث خطأ أثناء حفظ الإعدادات");
         } finally {
             setSaving(false);
         }

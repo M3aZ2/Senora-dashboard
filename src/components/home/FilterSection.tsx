@@ -1,13 +1,27 @@
 import Link from "next/link";
 import { useState } from "react";
 
+interface Category {
+    id: string;
+    label: string;
+    icon: string;
+}
+
+interface FilterSectionProps {
+    categories: Category[];
+    selectedCategory: string;
+    setSelectedCategory: (category: string) => void;
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+}
+
 export default function FilterSection({
-                                          categories,
-                                          selectedCategory,
-                                          setSelectedCategory,
-                                          searchTerm,
-                                          setSearchTerm,
-                                      }) {
+    categories,
+    selectedCategory,
+    setSelectedCategory,
+    searchTerm,
+    setSearchTerm,
+}: FilterSectionProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const activeCategory = categories.find(cat => cat.id === selectedCategory);
@@ -57,13 +71,12 @@ export default function FilterSection({
                                                 setSelectedCategory(cat.id);
                                                 setIsOpen(false);
                                             }}
-                                            className={`w-full flex items-center gap-3 px-5 py-3 transition-all duration-200 ${
-                                                isActive
+                                            className={`w-full flex items-center gap-3 px-5 py-3 transition-all duration-200 ${isActive
                                                     ? "bg-primary-dark text-white"
                                                     : "hover:bg-secondary-light hover:text-brandGreen"
 
 
-                                            }`}
+                                                }`}
                                         >
                                             <span className="text-xl">{cat.icon}</span>
                                             <span className="flex-1 text-right text-sm font-medium">{cat.label}</span>

@@ -1,9 +1,14 @@
 'use client'
 
+interface ProductFormData {
+    price: number | string;
+    order_count?: number;
+}
+
 type Props = {
     activeTab: string
-    formData: FormData
-    setFormData: any
+    formData: ProductFormData
+    setFormData: (data: ProductFormData) => void
 }
 
 export default function Price_Avaliabilty({ activeTab, formData, setFormData }: Props) {

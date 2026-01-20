@@ -27,7 +27,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<{ id: string; label: string; icon: string }[]>([]);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,13 +51,14 @@ export default function Home() {
           icon: "🏷️",
         }));
         setCategories([{ id: "all", label: "الكل", icon: "🌟" }, ...mappedCategories]);
-      } catch (error) {
-          const status = error?.response?.status;
-          if (status === 401) {
-              localStorage.removeItem("token");
-              router.replace("/login");
-          }
-          console.error("Failed to fetch categories", error);
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        const status = axiosError?.response?.status;
+        if (status === 401) {
+          localStorage.removeItem("token");
+          router.replace("/login");
+        }
+        console.error("Failed to fetch categories", error);
         setCategories([{ id: "all", label: "الكل", icon: "🌟" }]);
       }
     };
@@ -107,7 +108,7 @@ export default function Home() {
 
         setProducts(mappedProducts);
 
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Failed to fetch products", error);
       } finally {
         setLoading(false);
@@ -175,9 +176,9 @@ export default function Home() {
                 className="w-10 h-10 flex items-center justify-center rounded-xl border border-border bg-white text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
                 title="الصفحة السابقة"
               >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
 
               {/* Page Numbers */}
@@ -194,9 +195,9 @@ export default function Home() {
                 disabled={currentPage === totalPages || totalPages === 0}
                 className="w-10 h-10 flex items-center justify-center rounded-xl border border-border bg-white text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
               >
-                  <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
 
               {/* Last Page */}

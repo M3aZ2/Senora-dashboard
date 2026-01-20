@@ -3,9 +3,33 @@
 import Link from "next/link";
 import { useState } from "react";
 
-export default function ProductGrid({ products, categories }) {
-    const [hoveredProduct, setHoveredProduct] = useState(null);
-    const [currentImageIndex, setCurrentImageIndex] = useState({});
+interface Category {
+    id: string;
+    label: string;
+    icon: string;
+}
+
+interface Product {
+    id: string;
+    name: string;
+    price: number;
+    status: string;
+    category: string;
+    image?: string;
+    images?: string[];
+    sales?: number;
+    colors?: string[];
+    sizes?: string[];
+}
+
+interface ProductGridProps {
+    products: Product[];
+    categories: Category[];
+}
+
+export default function ProductGrid({ products, categories }: ProductGridProps) {
+    const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState<Record<string, number | NodeJS.Timeout>>({});
 
     if (products.length === 0) {
         return (
@@ -18,7 +42,7 @@ export default function ProductGrid({ products, categories }) {
     }
 
     // Handle image rotation on hover
-    const handleMouseEnter = (productId, images) => {
+    const handleMouseEnter = (productId: string, images: string[]) => {
         setHoveredProduct(productId);
         if (images && images.length > 1) {
             let index = 0;
@@ -32,7 +56,7 @@ export default function ProductGrid({ products, categories }) {
         }
     };
 
-    const handleMouseLeave = (productId) => {
+    const handleMouseLeave = (productId: string) => {
         setHoveredProduct(null);
         // Clear interval
         const intervalId = currentImageIndex[`${productId}_interval`];
@@ -52,8 +76,8 @@ export default function ProductGrid({ products, categories }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => {
                 // Assume product has an images array, fallback to single image
-                const images = product.images || [product.image];
-                const currentIndex = currentImageIndex[product.id] || 0;
+                const images = (product.images || [product.image]).filter((img): img is string => !!img);
+                const currentIndex = (currentImageIndex[product.id] as number) || 0;
 
                 return (
                     <Link
@@ -71,11 +95,10 @@ export default function ProductGrid({ products, categories }) {
                                     key={idx}
                                     src={img}
                                     alt={`${product.name} - ${idx + 1}`}
-                                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
-                                        idx === currentIndex
-                                            ? 'opacity-100 scale-100'
-                                            : 'opacity-0 scale-105'
-                                    } ${hoveredProduct === product.id ? 'group-hover:scale-110' : ''}`}
+                                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${idx === currentIndex
+                                        ? 'opacity-100 scale-100'
+                                        : 'opacity-0 scale-105'
+                                        } ${hoveredProduct === product.id ? 'group-hover:scale-110' : ''}`}
                                     loading="lazy"
                                     style={{
                                         transitionProperty: 'opacity, transform',
@@ -89,13 +112,12 @@ export default function ProductGrid({ products, categories }) {
 
                             {/* Status Badge */}
                             <div className="absolute top-4 right-4 z-10">
-                                <span className={`px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-xl shadow-lg transition-all duration-300 ${
-                                    product.status === "متاح"
-                                        ? "bg-emerald-500/90 text-white ring-2 ring-emerald-400/50"
-                                        : product.status === "نفد من المخزون"
-                                            ? "bg-red-500/90 text-white ring-2 ring-red-400/50"
-                                            : "bg-amber-500/90 text-white ring-2 ring-amber-400/50"
-                                }`}>
+                                <span className={`px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-xl shadow-lg transition-all duration-300 ${product.status === "متاح"
+                                    ? "bg-emerald-500/90 text-white ring-2 ring-emerald-400/50"
+                                    : product.status === "نفد من المخزون"
+                                        ? "bg-red-500/90 text-white ring-2 ring-red-400/50"
+                                        : "bg-amber-500/90 text-white ring-2 ring-amber-400/50"
+                                    }`}>
                                     {product.status}
                                 </span>
                             </div>
@@ -107,11 +129,10 @@ export default function ProductGrid({ products, categories }) {
                                         {images.map((_, idx) => (
                                             <div
                                                 key={idx}
-                                                className={`h-1 rounded-full transition-all duration-300 ${
-                                                    idx === currentIndex
-                                                        ? "w-6 bg-white"
-                                                        : "w-1 bg-white/40"
-                                                }`}
+                                                className={`h-1 rounded-full transition-all duration-300 ${idx === currentIndex
+                                                    ? "w-6 bg-white"
+                                                    : "w-1 bg-white/40"
+                                                    }`}
                                             ></div>
                                         ))}
                                     </div>

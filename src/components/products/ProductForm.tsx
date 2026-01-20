@@ -34,12 +34,12 @@ export default function ProductForm({ initialData, onSubmit, isEditMode = false,
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-          const token = localStorage.getItem("token");
-          const response = await api.get("/categories",{
-              headers: { Authorization: `Bearer ${token}`, },
+        const token = localStorage.getItem("token");
+        const response = await api.get("/categories", {
+          headers: { Authorization: `Bearer ${token}`, },
         });
         setCategories(response.data.data);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Failed to fetch categories", error);
       }
     };

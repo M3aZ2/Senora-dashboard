@@ -26,15 +26,16 @@ export default function Header({ isEditMode, onSubmit, loading, formData, setFor
 
         try {
             const token = localStorage.getItem("token",);
-            const response =await api.post(`dashboard/product/${productId}/changeStatus`,{},{
+            const response = await api.post(`dashboard/product/${productId}/changeStatus`, {}, {
                 headers: { Authorization: `Bearer ${token}`, },
             });
             alert(response.data);
             if (setFormData && formData) {
                 setFormData({ ...formData, status: newStatus });
             }
-        } catch (error) {
-            const status = error?.response?.status;
+        } catch (error: unknown) {
+            const axiosError = error as { response?: { status?: number } };
+            const status = axiosError?.response?.status;
             if (status === 401) {
                 localStorage.removeItem("token");
                 router.replace("/login");
@@ -80,12 +81,12 @@ export default function Header({ isEditMode, onSubmit, loading, formData, setFor
                                 onClick={handleStatusToggle}
                                 disabled={statusLoading}
                                 className={`relative w-12 h-7 lg:w-14 lg:h-8 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex-shrink-0 ${localStatus ? "bg-green-500" : "bg-gray-200"
-                                }`}
+                                    }`}
                                 aria-label="Toggle Product Status"
                             >
                                 <span
                                     className={`absolute top-0.5 lg:top-1 left-0.5 lg:left-1 bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 flex items-center justify-center ${localStatus ? "translate-x-5 lg:translate-x-6" : "translate-x-0"
-                                    }`}
+                                        }`}
                                 >
                                     {statusLoading ? (
                                         <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />

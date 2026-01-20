@@ -20,8 +20,9 @@ export default function CategoriesPage() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setCategories(response.data.data);
-        } catch (error) {
-            const status = error?.response?.status;
+        } catch (error: unknown) {
+            const axiosError = error as { response?: { status?: number } };
+            const status = axiosError?.response?.status;
             if (status === 401) {
                 localStorage.removeItem("token");
                 router.replace("/login");
