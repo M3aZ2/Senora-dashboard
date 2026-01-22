@@ -86,10 +86,7 @@ export default function CategoriesPage() {
                             <div className="relative h-48 bg-accent/30 overflow-hidden">
                                 {cat.image ? (
                                     <img
-                                        src={cat.image.includes('localhost')
-                                            ? cat.image.replace('http://localhost/', 'http://127.0.0.1:8000/')
-                                            : cat.image
-                                        }
+                                        src={cat.image}
                                         alt={cat.name}
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />

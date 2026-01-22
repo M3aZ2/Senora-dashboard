@@ -6,20 +6,7 @@ import FilterSection from "@/components/home/FilterSection";
 import ProductGrid from "@/components/home/ProductGrid";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
-const normalizeImageUrl = (url: string | null) => {
-  if (!url) return "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=400&h=500&fit=crop"; // Fallback image
-  if (url.includes('localhost/storage')) {
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000/api/';
-    try {
-      // Basic replacement: replace http://localhost/ with http://127.0.0.1:8000/
-      // This assumes the standard setup.
-      return url.replace('http://localhost/', 'http://127.0.0.1:8000/');
-    } catch (e) {
-      return url;
-    }
-  }
-  return url;
-};
+
 
 export default function Home() {
 
@@ -102,8 +89,8 @@ export default function Home() {
           sales: p.orders_count || 0,
           colors: p.colors || [],
           sizes: p.sizes || [],
-          image: normalizeImageUrl(p.images?.[0]?.url || null),
-          images: p.images?.map((img: any) => normalizeImageUrl(img.url)) || []
+          image: p.images?.[0]?.url || null,
+          images: p.images?.map((img: any) => img.url) || []
         }));
 
         setProducts(mappedProducts);

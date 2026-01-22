@@ -169,15 +169,7 @@ export default function LoginForm() {
                                 <span>كلمة المرور</span>
                                 <span className="text-secondary">*</span>
                             </label>
-                            <button
-                                type="button"
-                                className="text-xs text-secondary hover:text-secondary-dark font-medium transition-colors hover:underline"
-                                onClick={() =>
-                                    alert("سيتم إرسال رابط إعادة تعيين كلمة المرور")
-                                }
-                            >
-                                نسيت كلمة المرور؟
-                            </button>
+
                         </div>
 
                         <div className="relative">

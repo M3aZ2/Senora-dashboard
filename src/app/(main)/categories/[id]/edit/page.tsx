@@ -126,9 +126,7 @@ export default function EditCategoryPage(props: { params: Params }) {
                         <label className="text-sm font-medium text-foreground">الصورة الحالية</label>
                         <div className="w-32 h-32 rounded-xl overflow-hidden border border-border">
                             <img
-                                src={currentImage.includes('localhost')
-                                    ? currentImage.replace('http://localhost/', 'http://127.0.0.1:8000/')
-                                    : currentImage}
+                                src={ currentImage}
                                 alt="Current"
                                 className="w-full h-full object-cover"
                             />

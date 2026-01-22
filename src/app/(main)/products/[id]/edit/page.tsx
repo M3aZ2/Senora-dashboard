@@ -28,20 +28,11 @@ type ProductFormData = {
 
 function normalizeProductToFormData(raw: any): ProductFormData {
     const p = raw?.data ?? raw;
+    console.log(raw.data);
     // Normalizing images to ensure they are objects with ID and URL
     const normalizedImages = Array.isArray(p?.images)
         ? p.images.map((img: any) => {
-            let imageUrl = typeof img === 'string' ? img : (img.url || img.image || "");
-
-            // Fix: Backend returns localhost (port 80) but actual server is likely on port 8000
-            // We replace http://localhost/ with the API base domain if needed
-            if (imageUrl && imageUrl.startsWith('http://localhost/storage')) {
-                imageUrl = imageUrl.replace('http://localhost/', 'http://127.0.0.1:8000/');
-            }
-
-            if (typeof img === 'string') {
-                return { url: imageUrl, isNew: false };
-            }
+            const imageUrl = typeof img === 'string' ? img : (img.url || img.image || "");
             return {
                 id: img.id,
                 url: imageUrl,
