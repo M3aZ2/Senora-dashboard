@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
-import { useState } from "react";
+import {useEffect, useState} from "react";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -13,6 +13,13 @@ export default function LoginForm() {
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [showPassword, setShowPassword] = useState(false);
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token){
+            router.push("/");
+            router.refresh();
+        }
+    },[])
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 

@@ -80,45 +80,54 @@ export default function BasicInfo({ formData, CATEGORIES, activeTab, setFormData
                             <label className="block text-sm font-semibold mb-2 text-foreground">
                                 التصنيفات <span className="text-secondary">*</span> (يمكن اختيار أكثر من تصنيف)
                             </label>
-                            <div className="grid grid-cols-2 gap-3">
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                                 {CATEGORIES.map((cat) => {
-                                    const isSelected = formData.categories?.includes(Number(cat.id)) || formData.categories?.includes(String(cat.id) as any);
+                                    const isSelected =
+                                        formData.categories?.includes(Number(cat.id)) ||
+                                        formData.categories?.includes(String(cat.id) as any);
+
                                     return (
                                         <button
                                             key={cat.id}
                                             type="button"
                                             onClick={() => toggleCategory(cat.id)}
-                                            className={`group relative overflow-hidden rounded-xl border-2 transition-all ${isSelected
-                                                ? "border-secondary shadow-lg shadow-secondary/20 scale-[1.02]"
-                                                : "border-border hover:border-secondary/50 hover:shadow-md"
-                                                }`}
+                                            className={`group relative overflow-hidden rounded-xl border-2 transition-all w-full aspect-square ${
+                                                isSelected
+                                                    ? "border-secondary shadow-lg shadow-secondary/20 scale-[1.02]"
+                                                    : "border-border hover:border-secondary/50 hover:shadow-md"
+                                            }`}
                                         >
-                                            {/* صورة الخلفية */}
-                                            <div className="relative h-32 overflow-hidden">
+                                            {/* الخلفية (مربعة) */}
+                                            <div className="absolute inset-0">
                                                 <img
                                                     src={cat.image}
                                                     alt={cat.name}
-                                                    className={`w-full h-full object-cover transition-transform duration-300 ${isSelected
-                                                        ? "scale-110"
-                                                        : "group-hover:scale-105"
-                                                        }`}
+                                                    className={`w-full h-full object-cover transition-transform duration-300 ${
+                                                        isSelected ? "scale-110" : "group-hover:scale-105"
+                                                    }`}
                                                 />
-                                                {/* طبقة تعتيم متدرجة */}
-                                                <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent transition-opacity ${isSelected
-                                                    ? "opacity-80"
-                                                    : "opacity-60 group-hover:opacity-70"
-                                                    }`}></div>
+                                                <div
+                                                    className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent transition-opacity ${
+                                                        isSelected ? "opacity-80" : "opacity-60 group-hover:opacity-70"
+                                                    }`}
+                                                />
                                             </div>
 
-                                            {/* النص */}
-                                            <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between">
-                                                <span className="font-bold text-white text-base drop-shadow-lg">
-                                                    {cat.name}
-                                                </span>
+                                            {/* النص تحت */}
+                                            <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
+                                            <span className="font-bold text-white text-sm sm:text-base drop-shadow-lg line-clamp-2 text-right">
+                                              {cat.name}
+                                            </span>
+
                                                 {isSelected && (
-                                                    <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shadow-lg">
+                                                    <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shadow-lg shrink-0">
                                                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                clipRule="evenodd"
+                                                            />
                                                         </svg>
                                                     </div>
                                                 )}
@@ -126,10 +135,10 @@ export default function BasicInfo({ formData, CATEGORIES, activeTab, setFormData
 
                                             {/* حدود مضيئة عند الاختيار */}
                                             {isSelected && (
-                                                <div className="absolute inset-0 rounded-xl ring-2 ring-secondary ring-offset-2 pointer-events-none"></div>
+                                                <div className="absolute inset-0 rounded-xl ring-2 ring-secondary ring-offset-2 pointer-events-none" />
                                             )}
                                         </button>
-                                    )
+                                    );
                                 })}
                             </div>
                         </div>

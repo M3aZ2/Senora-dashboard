@@ -28,7 +28,6 @@ type ProductFormData = {
 
 function normalizeProductToFormData(raw: any): ProductFormData {
     const p = raw?.data ?? raw;
-    console.log(raw.data);
     // Normalizing images to ensure they are objects with ID and URL
     const normalizedImages = Array.isArray(p?.images)
         ? p.images.map((img: any) => {
@@ -130,16 +129,15 @@ export default function EditProductPage() {
             data.availableColors.forEach(color => formData.append("colors[]", color));
 
             // Images Logic
-            data.images.forEach((img, index) => {
+            data.images.forEach((img) => {
                 if (img.isNew && img.file) {
-                    formData.append(`media[${index}]`, img.file);
+                    formData.append(`media[]`, img.file);
                 } else if (img.id && !img.isNew) {
                     formData.append("wanted_media[]", String(img.id));
                 }
             });
 
             const token = localStorage.getItem("token");
-
             await api.post(`dashboard/product/${productId}/update`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,

@@ -75,15 +75,15 @@ export default function CategoriesPage() {
                     <p className="text-muted-foreground text-lg">لا توجد تصنيفات حالياً</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {categories.map((cat: any) => (
                         <Link
                             key={cat.id}
                             href={`/categories/${cat.id}/edit`}
-                            className="group bg-white rounded-2xl overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+                            className="group bg-white rounded-2xl overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer w-full aspect-square relative"
                         >
-                            {/* Image Area */}
-                            <div className="relative h-48 bg-accent/30 overflow-hidden">
+                            {/* Image Area (Square) */}
+                            <div className="absolute inset-0 bg-accent/30 overflow-hidden">
                                 {cat.image ? (
                                     <img
                                         src={cat.image}
@@ -99,17 +99,22 @@ export default function CategoriesPage() {
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
                                     <div className="bg-white/90 backdrop-blur text-primary p-2 rounded-lg group-hover:bg-primary group-hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                            />
                                         </svg>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Info */}
-                            <div className="p-4 text-center">
-                                <h3 className="font-bold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
-                                    {cat.name}
-                                </h3>
+                                {/* Bottom Name Bar */}
+                                <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+                                    <h3 className="font-bold text-base text-white text-center drop-shadow line-clamp-2">
+                                        {cat.name}
+                                    </h3>
+                                </div>
                             </div>
                         </Link>
                     ))}
